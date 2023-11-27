@@ -19,6 +19,8 @@ public class BillEntity {
     private Long id;
     private String status;
     private Date createdAt;
+    private String paymentMethod;
+    private String paymentCode;
 
     @ManyToOne
     private AddressEntity address;

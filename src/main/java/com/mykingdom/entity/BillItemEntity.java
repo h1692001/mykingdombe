@@ -15,6 +15,11 @@ public class BillItemEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private int amount;
+
+    @ManyToOne
+    private ProductEntity product;
+
     @ManyToOne
     private BillEntity bill;
 

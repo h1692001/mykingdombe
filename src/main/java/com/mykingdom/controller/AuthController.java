@@ -74,6 +74,12 @@ public class AuthController {
         user1.setAvatar("https://res.cloudinary.com/dyvgnrswn/image/upload/v1684721106/mhqiehkoysbdiquyu88a.png");
         user1.setRole(Role.ADMIN);
         user1.setPassword(bCryptPasswordEncoder.encode(registerCommand.getPassword()));
+        CartEntity cart=new CartEntity();
+        cart.setUser(user1);
+        FavouriteEntity favourite=new FavouriteEntity();
+        favourite.setOwner(user1);
+        user1.setCart(cart);
+        user1.setFavourite(favourite);
         userRepository.save(user1);
         return ResponseEntity.ok("Created User");
     }

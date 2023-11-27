@@ -34,11 +34,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         this.authService=authService;
     }
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager, AuthenticationEntryPoint authenticationEntryPoint,  AuthService authService) {
-        super(authenticationManager, authenticationEntryPoint);
-        this.authService=authService;
-    }
-
     private Key getSigningKey() {
         byte[] keyBytes = SecurityContants.getTokenSecret().getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);

@@ -43,6 +43,9 @@ public class ProductEntity {
     @OneToMany
     private List<FavouriteProductEntity> favourite;
 
+    @OneToMany
+    private List<BillItemEntity> billItems;
+
     @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private List<ProductImageEntity>  images;
 
