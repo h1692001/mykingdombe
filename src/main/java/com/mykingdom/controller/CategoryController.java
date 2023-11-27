@@ -32,6 +32,7 @@ public class CategoryController
     private Cloudinary cloudinary;
 
     @GetMapping
+    @CrossOrigin
     private ResponseEntity<?> getAllCategory(){
         List<CategoryDTO> returnValue=new ArrayList<>();
         List<CategoryEntity> categoryEntities=categoryRepository.findAll();

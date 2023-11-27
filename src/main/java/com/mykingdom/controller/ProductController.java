@@ -154,7 +154,7 @@ public class ProductController {
         BrandDTO brandDTO = new BrandDTO();
         BeanUtils.copyProperties(product.get().getBrand(), brandDTO);
         ProductDTO productDTO = new ProductDTO();
-        BeanUtils.copyProperties(product, productDTO);
+        BeanUtils.copyProperties(product.get(), productDTO);
         productDTO.setBrand(brandDTO);
         List<String> imgs = new ArrayList<>();
         product.get().getImages().forEach(img -> {
