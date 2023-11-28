@@ -2,18 +2,10 @@ package com.mykingdom.controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.mykingdom.dtos.BrandDTO;
-import com.mykingdom.dtos.CategoryDTO;
-import com.mykingdom.dtos.ProductDTO;
-import com.mykingdom.entity.BrandEntity;
-import com.mykingdom.entity.CategoryEntity;
-import com.mykingdom.entity.ProductEntity;
-import com.mykingdom.entity.ProductImageEntity;
+import com.mykingdom.dtos.*;
+import com.mykingdom.entity.*;
 import com.mykingdom.exception.ApiException;
-import com.mykingdom.repository.BrandRepository;
-import com.mykingdom.repository.CategoryRepository;
-import com.mykingdom.repository.ProductImageRepository;
-import com.mykingdom.repository.ProductRepository;
+import com.mykingdom.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("product")
@@ -42,6 +35,10 @@ public class ProductController {
 
     @Autowired
     private ProductImageRepository productImageRepository;
+
+    @Autowired
+    private BillRepository billRepository;
+
 
     @Autowired
     private Cloudinary cloudinary;
@@ -230,6 +227,43 @@ public class ProductController {
         productImageRepository.saveAll(imageEntities);
 
         return ResponseEntity.ok("Created product");
+    }
+
+    @GetMapping("/getAllBill")
+    private ResponseEntity<List<BillDTO>> getAllBill(){
+        List<BillEntity> billEntityList=billRepository.findAll();
+        List<BillDTO> returnValue=new ArrayList<>();
+        billEntityList.forEach(billEntity -> {
+            BillDTO billDTO=BillDTO.builder()
+                    .id(billEntity.getId())
+                    .address(billEntity.getAddress().getAddress())
+                    .phone(billEntity.getAddress().getPhone())
+                    .name(billEntity.getAddress().getName())
+                    .status(billEntity.getStatus())
+                    .paymentCode(billEntity.getPaymentCode())
+                    .createdAt(billEntity.getCreatedAt())
+                    .paymentMethod(billEntity.getPaymentMethod())
+                    .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
+                        ProductDTO productDTO=new ProductDTO();
+                        BeanUtils.copyProperties(billItemEntity.getProduct(),productDTO);
+
+                        return BillItemDTO.builder()
+                                .amount(billItemEntity.getAmount())
+                                .productDTO(productDTO)
+                                .build();
+                    }).collect(Collectors.toList()))
+                    .build();
+            returnValue.add(billDTO);
+        });
+        return ResponseEntity.ok(returnValue);
+    }
+
+    @PutMapping("/changeStatusBill")
+    private ResponseEntity<?> changeStatusBill(@RequestBody BillDTO billDTO) {
+        Optional<BillEntity> bill = billRepository.findById(billDTO.getId());
+        bill.get().setStatus(billDTO.getStatus());
+        billRepository.save(bill.get());
+        return ResponseEntity.ok("Success");
     }
 
 }

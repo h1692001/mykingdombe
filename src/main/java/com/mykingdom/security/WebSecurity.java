@@ -37,6 +37,9 @@ public class WebSecurity {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.GET,"/bill/getAllBill").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.PUT,"/bill").hasRole(Role.ADMIN.name())
+                .requestMatchers(HttpMethod.POST,"/bill").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/brand").permitAll()
                 .requestMatchers(HttpMethod.POST,"/brand").hasRole(Role.ADMIN.name())
@@ -49,6 +52,7 @@ public class WebSecurity {
                 .requestMatchers(HttpMethod.GET,"/product/getById").permitAll()
                 .requestMatchers(HttpMethod.POST,"/product").hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.GET,"/user/getAllUsers").hasRole(Role.ADMIN.name())
+
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthenticationFilter())
