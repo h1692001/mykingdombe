@@ -19,6 +19,7 @@ public class ProductImageEntity
     private String image;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private ProductEntity product;
 
 }

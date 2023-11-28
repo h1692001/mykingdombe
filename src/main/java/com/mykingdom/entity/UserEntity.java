@@ -67,15 +67,15 @@ public class UserEntity implements UserDetails {
         return true;
     }
 
-    @OneToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private CartEntity cart;
 
     @OneToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private FavouriteEntity favourite;
 
-    @OneToMany
+    @OneToMany(mappedBy = "owner")
     private List<AddressEntity> addresses;
 
-    @OneToMany
+    @OneToMany(mappedBy = "owner")
     private List<BillEntity> bills;
 }

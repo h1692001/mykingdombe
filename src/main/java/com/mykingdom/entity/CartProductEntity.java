@@ -18,8 +18,10 @@ public class CartProductEntity {
     private int amount;
 
     @ManyToOne
+    @JoinColumn(name = "cart_id")
     private CartEntity cart;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private ProductEntity product;
 }

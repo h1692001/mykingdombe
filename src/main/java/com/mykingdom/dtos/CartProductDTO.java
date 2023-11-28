@@ -8,4 +8,5 @@ import lombok.Data;
 public class CartProductDTO {
     private ProductDTO productDTO;
     private int amount;
+    private Long id;
 }

@@ -17,9 +17,9 @@ public class CartEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToMany
+    @OneToMany(mappedBy = "cart")
     private List<CartProductEntity> cartProducts;
 
-    @OneToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private UserEntity user;
 }

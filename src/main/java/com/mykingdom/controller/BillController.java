@@ -95,7 +95,7 @@ public class BillController {
         });
         bill.setBillItems(billItemEntities);
         Optional<CartEntity> cart = cartRepository.findById(billDTO.getCartId());
-//        cartProductRepository.deleteAllByCart(cart.get());
+        cartProductRepository.deleteAllByCart(cart.get());
         billRepository.save(bill);
         billItemRepository.saveAll(billItemEntities);
 

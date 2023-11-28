@@ -23,10 +23,12 @@ public class BillEntity {
     private String paymentCode;
 
     @ManyToOne
+    @JoinColumn(name = "address_id")
     private AddressEntity address;
     @ManyToOne
+    @JoinColumn(name = "owner_id")
     private UserEntity owner;
 
-    @OneToMany
+    @OneToMany(mappedBy = "bill")
     private List<BillItemEntity> billItems;
 }

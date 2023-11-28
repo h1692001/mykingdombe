@@ -16,8 +16,10 @@ public class FavouriteProductEntity {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "favourite_id")
     private FavouriteEntity favourite;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private ProductEntity product;
 }

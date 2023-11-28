@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,7 @@ public class CartController {
                                             .saleOff(cartProductEntity.getProduct().getSaleOff())
                                             .name(cartProductEntity.getProduct().getName())
                                             .build())
+                                    .id(cartProductEntity.getId())
                                     .build();
                             return cartProductDTO;
                         }).collect(Collectors.toList()))
@@ -94,6 +96,7 @@ public class CartController {
                                     .price(cartProductEntity1.getProduct().getPrice())
                                     .saleOff(cartProductEntity1.getProduct().getSaleOff())
                                     .build())
+                            .id(cartProductEntity.getId())
                             .build();
                 }).collect(Collectors.toList()))
                 .build());
@@ -104,6 +107,14 @@ public class CartController {
     private ResponseEntity<?> deleteFromCart(@RequestParam Long id){
         Optional<CartProductEntity> cartProductEntity=cartProductRepository.findById(id);
         cartProductRepository.delete(cartProductEntity.get());
+        return ResponseEntity.ok("Success");
+    }
+
+    @DeleteMapping("/deleteAllCartItem")
+    private ResponseEntity<?> deleteAllCartItem(@RequestParam Long id){
+        Optional<CartEntity> cartEntity=cartRepository.findById(id);
+        List<CartProductEntity> cartProductEntities=cartProductRepository.findAllByCart(cartEntity.get());
+        cartProductRepository.deleteAll(cartProductEntities);
         return ResponseEntity.ok("Success");
     }
 }

@@ -18,9 +18,11 @@ public class BillItemEntity {
     private int amount;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private ProductEntity product;
 
     @ManyToOne
+    @JoinColumn(name = "bill_id")
     private BillEntity bill;
 
 }

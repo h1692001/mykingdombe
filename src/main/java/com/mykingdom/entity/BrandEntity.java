@@ -21,10 +21,11 @@ public class BrandEntity {
     private String comeFrom;
     private String logo;
 
-    @OneToMany
+    @OneToMany(mappedBy = "brand")
     private List<ProductEntity> products;
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
 }

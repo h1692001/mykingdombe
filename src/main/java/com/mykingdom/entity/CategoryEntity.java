@@ -24,7 +24,7 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "category",cascade = {CascadeType.PERSIST,CascadeType.ALL})
     private List<ProductEntity> products;
 
-    @OneToMany
+    @OneToMany(mappedBy = "category")
     private List<BrandEntity> brand;
 
 }

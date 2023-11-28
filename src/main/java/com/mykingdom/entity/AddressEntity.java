@@ -24,7 +24,7 @@ public class AddressEntity {
     @ManyToOne
     private UserEntity owner;
 
-    @OneToMany
+    @OneToMany(mappedBy = "address")
     private List<BillEntity> bills;
 
 }

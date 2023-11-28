@@ -39,9 +39,14 @@ public class ProductController {
     @Autowired
     private BillRepository billRepository;
 
+    @Autowired
+    private CartProductRepository cartProductRepository;
+
 
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private CartRepository cartRepository;
 
     @GetMapping
     private ResponseEntity<List<ProductDTO>> getAllProduct() {

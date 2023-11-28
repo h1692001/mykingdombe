@@ -32,21 +32,23 @@ public class ProductEntity {
     private String age;
 
     @ManyToOne
+    @JoinColumn(name = "brand_id")
     private BrandEntity brand;
 
     @ManyToOne
+    @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @OneToMany
+    @OneToMany(mappedBy = "product")
     private List<CartProductEntity> cart;
 
-    @OneToMany
+    @OneToMany(mappedBy = "product")
     private List<FavouriteProductEntity> favourite;
 
-    @OneToMany
+    @OneToMany(mappedBy = "product")
     private List<BillItemEntity> billItems;
 
-    @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST},mappedBy = "product")
     private List<ProductImageEntity>  images;
 
     private String gender;
