@@ -31,4 +31,6 @@ public class ProductDTO {
     private List<String> images;
     private String gender;
     private CategoryDTO category;
+
+    private Boolean isHidden;
 }

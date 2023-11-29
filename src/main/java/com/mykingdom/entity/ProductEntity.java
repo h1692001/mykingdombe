@@ -32,6 +32,8 @@ public class ProductEntity {
     private String VTId;
     private String age;
 
+    private Boolean isHidden;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private BrandEntity brand;

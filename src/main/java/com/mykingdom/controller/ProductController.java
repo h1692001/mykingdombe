@@ -165,9 +165,11 @@ public class ProductController {
             imgs.add(img.getImage());
         });
         productDTO.setImages(imgs);
+        productDTO.setIsHidden(product.get().getIsHidden());
         productDTO.setCategory(CategoryDTO.builder()
                 .id(product.get().getCategory().getId())
                 .name(product.get().getCategory().getName())
+
                 .build());
         return ResponseEntity.ok(productDTO);
     }
@@ -230,6 +232,7 @@ public class ProductController {
             }
         });
         newProduct.setImages(imageEntities);
+        newProduct.setIsHidden(false);
         productRepository.save(newProduct);
         productImageRepository.saveAll(imageEntities);
 
@@ -263,6 +266,74 @@ public class ProductController {
             returnValue.add(billDTO);
         });
         return ResponseEntity.ok(returnValue);
+    }
+
+    @PutMapping("/updateProduct")
+    private ResponseEntity<?> updateProduct(@ModelAttribute("name") String name,
+                                            @ModelAttribute("SKU") String SKU,
+                                            @ModelAttribute("price") int price,
+                                            @ModelAttribute("saleOff") int saleOff,
+                                            @ModelAttribute("des") String des,
+                                            @ModelAttribute("amount") int amount,
+                                            @ModelAttribute("topic") String topic,
+                                            @ModelAttribute("madeIn") String madeIn,
+                                            @ModelAttribute("VTId") String VTId,
+                                            @ModelAttribute("age") String age,
+                                            @ModelAttribute("brand") Long brand,
+                                            @RequestParam("images") List<MultipartFile> images,
+                                            @ModelAttribute("category") Long category,
+                                            @ModelAttribute("gender") String gender,
+                                            @ModelAttribute("isHidden") Boolean isHidden,
+                                            @ModelAttribute("id") Long id
+    ){
+        ProductEntity check = productRepository.findByName(name);
+        if (check != null &&check.getId()!=id) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Existed product");
+        }
+        Optional<BrandEntity> brandEntity = brandRepository.findById(brand);
+        if (brandEntity.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find brand");
+        }
+        Optional<CategoryEntity> categoryEntity = categoryRepository.findById(category);
+        if (categoryEntity.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
+        }
+        ProductEntity newProduct = ProductEntity.builder()
+                .name(name)
+                .SKU(SKU)
+                .price(price)
+                .saleOff(saleOff)
+                .des(des)
+                .amount(amount)
+                .topic(topic)
+                .madeIn(madeIn)
+                .VTId(VTId)
+                .age(age)
+                .gender(gender)
+                .brand(brandEntity.get())
+                .category(categoryEntity.get())
+                .id(id)
+                .build();
+        List<ProductImageEntity> imageEntities = new ArrayList<>();
+        images.forEach(image -> {
+            Map result = null;
+            try {
+                result = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
+                String imageUrl = (String) result.get("secure_url");
+                ;
+                ProductImageEntity productImageEntity = new ProductImageEntity();
+                productImageEntity.setProduct(newProduct);
+                productImageEntity.setImage(imageUrl);
+                imageEntities.add(productImageEntity);
+            } catch (IOException e) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't upload image");
+            }
+        });
+        newProduct.setIsHidden(isHidden);
+        newProduct.setImages(imageEntities);
+        productRepository.save(newProduct);
+        productImageRepository.saveAll(imageEntities);
+        return ResponseEntity.ok("Updated product");
     }
 
     @PutMapping("/changeStatusBill")

@@ -21,6 +21,8 @@ public class CategoryEntity {
 
     private String image;
 
+    private Boolean isHidden;
+
     @OneToMany(mappedBy = "category",cascade = {CascadeType.PERSIST,CascadeType.ALL})
     private List<ProductEntity> products;
 
