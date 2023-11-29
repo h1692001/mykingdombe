@@ -52,7 +52,6 @@ public class WebSecurity {
                 .requestMatchers(HttpMethod.GET,"/product/getById").permitAll()
                 .requestMatchers(HttpMethod.POST,"/product").hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.GET,"/user/getAllUsers").hasRole(Role.ADMIN.name())
-
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthenticationFilter())

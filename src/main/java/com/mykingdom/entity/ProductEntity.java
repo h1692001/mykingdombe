@@ -3,6 +3,7 @@ package com.mykingdom.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -50,6 +51,8 @@ public class ProductEntity {
 
     @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST},mappedBy = "product")
     private List<ProductImageEntity>  images;
+
+    private Date createdAt;
 
     private String gender;
 

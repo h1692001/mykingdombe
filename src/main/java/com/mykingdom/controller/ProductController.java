@@ -47,6 +47,8 @@ public class ProductController {
     private Cloudinary cloudinary;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     private ResponseEntity<List<ProductDTO>> getAllProduct() {
@@ -269,6 +271,36 @@ public class ProductController {
         bill.get().setStatus(billDTO.getStatus());
         billRepository.save(bill.get());
         return ResponseEntity.ok("Success");
+    }
+
+    @GetMapping("/getAllBillByUserId")
+    private ResponseEntity<?> getAllBillByUserId(@RequestParam Long userId){
+        Optional<UserEntity> user=userRepository.findById(userId);
+        List<BillEntity> billEntityList=billRepository.findAllByOwner(user.get());
+        List<BillDTO> returnValue=new ArrayList<>();
+        billEntityList.forEach(billEntity -> {
+            BillDTO billDTO=BillDTO.builder()
+                    .id(billEntity.getId())
+                    .address(billEntity.getAddress().getAddress())
+                    .phone(billEntity.getAddress().getPhone())
+                    .name(billEntity.getAddress().getName())
+                    .status(billEntity.getStatus())
+                    .paymentCode(billEntity.getPaymentCode())
+                    .createdAt(billEntity.getCreatedAt())
+                    .paymentMethod(billEntity.getPaymentMethod())
+                    .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
+                        ProductDTO productDTO=new ProductDTO();
+                        BeanUtils.copyProperties(billItemEntity.getProduct(),productDTO);
+
+                        return BillItemDTO.builder()
+                                .amount(billItemEntity.getAmount())
+                                .productDTO(productDTO)
+                                .build();
+                    }).collect(Collectors.toList()))
+                    .build();
+            returnValue.add(billDTO);
+        });
+        return ResponseEntity.ok(returnValue);
     }
 
 }
