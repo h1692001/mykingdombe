@@ -54,6 +54,7 @@ public class UserController {
                 .email(userEntity.getEmail())
                 .fullname(userEntity.getFullname())
                 .role(userEntity.getRole())
+                   
                 .build());
     }
 

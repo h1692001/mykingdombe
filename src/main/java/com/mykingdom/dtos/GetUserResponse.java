@@ -12,4 +12,5 @@ public class GetUserResponse {
     private String avatar;
     private String email;
     private Role role;
+    private String dob;
 }
