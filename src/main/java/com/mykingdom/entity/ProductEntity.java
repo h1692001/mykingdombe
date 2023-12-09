@@ -31,6 +31,7 @@ public class ProductEntity {
     private String madeIn;
     private String VTId;
     private String age;
+    private int vote;
 
     private Boolean isHidden;
 

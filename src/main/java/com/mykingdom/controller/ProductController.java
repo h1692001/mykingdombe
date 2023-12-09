@@ -40,6 +40,9 @@ public class ProductController {
     private BillRepository billRepository;
 
     @Autowired
+    private BillItemRepository billItemRepository;
+
+    @Autowired
     private CartProductRepository cartProductRepository;
 
 
@@ -169,8 +172,8 @@ public class ProductController {
         productDTO.setCategory(CategoryDTO.builder()
                 .id(product.get().getCategory().getId())
                 .name(product.get().getCategory().getName())
-
                 .build());
+        productDTO.setVote(product.get().getVote());
         return ResponseEntity.ok(productDTO);
     }
 
@@ -256,10 +259,17 @@ public class ProductController {
                     .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
                         ProductDTO productDTO=new ProductDTO();
                         BeanUtils.copyProperties(billItemEntity.getProduct(),productDTO);
+                        List<String> imgs = new ArrayList<>();
+                        billItemEntity.getProduct().getImages().forEach(img -> {
+                            imgs.add(img.getImage());
+                        });
+                        productDTO.setImages(imgs);
 
                         return BillItemDTO.builder()
                                 .amount(billItemEntity.getAmount())
                                 .productDTO(productDTO)
+                                .id(billItemEntity.getId())
+                                .isVoted(billItemEntity.getIsVoted())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();
@@ -268,6 +278,18 @@ public class ProductController {
         return ResponseEntity.ok(returnValue);
     }
 
+
+
+    @PostMapping("/voteProduct")
+    private ResponseEntity<?> voteProduct(@RequestBody BillItemDTO billItemDTO){
+        ProductEntity product=productRepository.findById(billItemDTO.getProductDTO().getId()).get();
+        BillItemEntity billItemEntity=billItemRepository.findById(billItemDTO.getId()).get();
+        billItemEntity.setIsVoted(1);
+        billItemRepository.save(billItemEntity);
+        product.setVote(product.getVote()+billItemDTO.getVote());
+        productRepository.save(product);
+        return ResponseEntity.ok("ok");
+    }
     @PutMapping("/updateProduct")
     private ResponseEntity<?> updateProduct(@ModelAttribute("name") String name,
                                             @ModelAttribute("SKU") String SKU,
@@ -362,10 +384,17 @@ public class ProductController {
                     .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
                         ProductDTO productDTO=new ProductDTO();
                         BeanUtils.copyProperties(billItemEntity.getProduct(),productDTO);
+                        List<String> imgs = new ArrayList<>();
+                        billItemEntity.getProduct().getImages().forEach(img -> {
+                            imgs.add(img.getImage());
+                        });
+                        productDTO.setImages(imgs);
 
                         return BillItemDTO.builder()
                                 .amount(billItemEntity.getAmount())
                                 .productDTO(productDTO)
+                                .id(billItemEntity.getId())
+                                .isVoted(billItemEntity.getIsVoted())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();

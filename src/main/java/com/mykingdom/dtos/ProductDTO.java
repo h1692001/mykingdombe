@@ -33,4 +33,5 @@ public class ProductDTO {
     private CategoryDTO category;
 
     private Boolean isHidden;
+    private int vote;
 }

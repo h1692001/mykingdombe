@@ -50,9 +50,11 @@ public class WebSecurity {
                 .requestMatchers(HttpMethod.GET,"/product/getByCategory").permitAll()
                 .requestMatchers(HttpMethod.GET,"/product/getByBrand").permitAll()
                 .requestMatchers(HttpMethod.GET,"/product/getById").permitAll()
+                .requestMatchers(HttpMethod.GET,"/post").permitAll()
+                .requestMatchers("/vnpay/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/product").hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.GET,"/user/getAllUsers").hasRole(Role.ADMIN.name())
-                .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthenticationFilter())
                 .addFilter(new AuthorizationFilter(authManagerBuilder.getOrBuild(), authDetailsService))
@@ -77,8 +79,8 @@ public class WebSecurity {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowedOrigins(List.of("https://mykingdomfe.vercel.app"));
-//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+//        corsConfiguration.setAllowedOrigins(List.of("https://mykingdomfe.vercel.app"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
 
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setMaxAge(1800L);

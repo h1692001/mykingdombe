@@ -102,6 +102,10 @@
             <artifactId>cloudinary-core</artifactId>
             <version>1.33.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/clojure-interop/javax.crypto -->
+        <!-- https://mvnrepository.com/artifact/clojure-interop/javax.crypto -->
+
+
     </dependencies>
 
     <build>

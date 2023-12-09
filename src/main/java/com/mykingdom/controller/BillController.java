@@ -43,7 +43,7 @@ public class BillController {
         List<BillEntity> billEntityList = billRepository.findAll();
         List<BillDTO> returnValue = new ArrayList<>();
         billEntityList.forEach(billEntity -> {
-            BillDTO billDTO = BillDTO.builder()
+            BillDTO billDTO=BillDTO.builder()
                     .id(billEntity.getId())
                     .address(billEntity.getAddress().getAddress())
                     .phone(billEntity.getAddress().getPhone())
@@ -53,18 +53,51 @@ public class BillController {
                     .createdAt(billEntity.getCreatedAt())
                     .paymentMethod(billEntity.getPaymentMethod())
                     .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
-                        ProductDTO productDTO = new ProductDTO();
-                        BeanUtils.copyProperties(billItemEntity.getProduct(), productDTO);
+                        ProductDTO productDTO=new ProductDTO();
+                        BeanUtils.copyProperties(billItemEntity.getProduct(),productDTO);
+                        List<String> imgs = new ArrayList<>();
+                        billItemEntity.getProduct().getImages().forEach(img -> {
+                            imgs.add(img.getImage());
+                        });
+                        productDTO.setImages(imgs);
 
                         return BillItemDTO.builder()
                                 .amount(billItemEntity.getAmount())
                                 .productDTO(productDTO)
+                                .id(billItemEntity.getId())
+                                .isVoted(billItemEntity.getIsVoted())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();
             returnValue.add(billDTO);
         });
         return ResponseEntity.ok(returnValue);
+    }
+
+    @GetMapping("/getBillById")
+    private ResponseEntity<BillDTO> getBillById(@RequestParam Long id) {
+        BillEntity billEntity = billRepository.findById(id).get();
+        BillDTO billDTO = BillDTO.builder()
+                .id(billEntity.getId())
+                .address(billEntity.getAddress().getAddress())
+                .phone(billEntity.getAddress().getPhone())
+                .name(billEntity.getAddress().getName())
+                .status(billEntity.getStatus())
+                .paymentCode(billEntity.getPaymentCode())
+                .createdAt(billEntity.getCreatedAt())
+                .paymentMethod(billEntity.getPaymentMethod())
+                .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
+                    ProductDTO productDTO = new ProductDTO();
+                    BeanUtils.copyProperties(billItemEntity.getProduct(), productDTO);
+
+                    return BillItemDTO.builder()
+                            .amount(billItemEntity.getAmount())
+                            .productDTO(productDTO)
+                            .build();
+                }).collect(Collectors.toList()))
+                .build();
+
+        return ResponseEntity.ok(billDTO);
     }
 
     @Transactional
@@ -81,6 +114,7 @@ public class BillController {
         Optional<UserEntity> user = userRepository.findById(billDTO.getUserId());
         bill.setOwner(user.get());
         bill.setAddress(address);
+        bill.setPaymentCode(billDTO.getPaymentCode());
         List<BillItemEntity> billItemEntities = new ArrayList<>();
         billDTO.getBillItemDTOS().forEach(billItemDTO -> {
             Optional<ProductEntity> product = productRepository.findById(billItemDTO.getProductDTO().getId());
@@ -88,6 +122,7 @@ public class BillController {
             BillItemEntity billItemEntity = BillItemEntity.builder()
                     .product(product.get())
                     .bill(bill)
+                    .isVoted(0)
                     .amount(billItemDTO.getAmount())
                     .build();
             productRepository.save(product.get());
@@ -98,7 +133,6 @@ public class BillController {
         cartProductRepository.deleteAllByCart(cart.get());
         billRepository.save(bill);
         billItemRepository.saveAll(billItemEntities);
-
         return ResponseEntity.ok("Success");
     }
 

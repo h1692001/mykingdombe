@@ -16,6 +16,7 @@ public class BillItemEntity {
     private Long id;
 
     private int amount;
+    private int isVoted;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
