@@ -45,6 +45,12 @@ public class ProductController {
     @Autowired
     private CartProductRepository cartProductRepository;
 
+    @Autowired
+    private FavouriteRepository favouriteRepository;
+
+    @Autowired
+    private FavouriteProductRepository favouriteProductRepository;
+
 
     @Autowired
     private Cloudinary cloudinary;
@@ -403,4 +409,58 @@ public class ProductController {
         return ResponseEntity.ok(returnValue);
     }
 
+    @PostMapping("/addFavourite")
+    private ResponseEntity<?> addFavourite(@RequestBody FavoutireDTO favoutireDTO){
+        FavouriteEntity favourite=favouriteRepository.findByUserId(favoutireDTO.getUserId());
+        ProductEntity product=productRepository.findById(favoutireDTO.getProductId().get(0)).get();
+        FavouriteProductEntity favouriteProductEntity=FavouriteProductEntity.builder()
+                .product(product)
+                .favourite(favourite)
+                .build();
+        favouriteProductRepository.save(favouriteProductEntity);
+        product.getFavourite().add(favouriteProductEntity);
+        productRepository.save(product);
+        favourite.getItems().add(favouriteProductEntity);
+        favouriteRepository.save(favourite);
+        return ResponseEntity.ok("ok");
+    }
+    @PostMapping("/removeFavourite")
+    private ResponseEntity<?> removeFavourite(@RequestBody FavoutireDTO favoutireDTO){
+        FavouriteProductEntity favouriteProductEntity=favouriteProductRepository.findByUserIdAndProductId(favoutireDTO.getUserId(),favoutireDTO.getProductId().get(0));
+       favouriteProductRepository.delete(favouriteProductEntity);
+        return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping("/getAllFavourite")
+    private ResponseEntity<?> getAllFavourite(@RequestParam Long userId)
+    {
+        List<FavouriteProductEntity> favouriteProductEntities=favouriteProductRepository.findAllByUserId(userId);
+        List<ProductDTO> productDTOS=new ArrayList<>();
+        favouriteProductEntities.stream().forEach(item->{
+
+            ProductDTO productDTO = new ProductDTO();
+            BeanUtils.copyProperties(item.getProduct(), productDTO);
+            List<String> imgs = new ArrayList<>();
+            item.getProduct().getImages().forEach(img -> {
+                imgs.add(img.getImage());
+            });
+            productDTO.setImages(imgs);
+            productDTO.setCategory(CategoryDTO.builder()
+                    .id(item.getProduct().getCategory().getId())
+                    .name(item.getProduct().getCategory().getName())
+                    .build());
+            productDTOS.add(productDTO);
+        });
+        return ResponseEntity.ok(FavoutireDTO.builder()
+                .products(productDTOS)
+                .build());
+    }
+
+    @GetMapping("/checkFavourite")
+    private ResponseEntity<?> checkFavourite(@RequestParam Long userId,@RequestParam Long productId){
+         FavouriteProductEntity favouriteProductEntity=favouriteProductRepository.findByUserIdAndProductId(userId,productId);
+        if(favouriteProductEntity!=null){
+            return ResponseEntity.ok("ok");
+        }else return ResponseEntity.ok("no");
+    }
 }

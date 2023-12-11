@@ -29,4 +29,7 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "category")
     private List<BrandEntity> brand;
 
+    @ManyToOne
+    private SaleEntity sale;
+
 }

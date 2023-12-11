@@ -3,6 +3,8 @@ package com.mykingdom.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -17,5 +19,8 @@ public class FavouriteEntity {
 
     @OneToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private UserEntity owner;
+
+    @OneToMany(mappedBy = "favourite")
+    private List<FavouriteProductEntity> items;
 
 }
