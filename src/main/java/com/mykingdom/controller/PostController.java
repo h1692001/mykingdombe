@@ -17,10 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -80,7 +77,8 @@ public class PostController {
         String imageUrl = (String) result.get("secure_url");
 
 
-        String publicId = title.replace(" ","") + "_content.txt";
+        String randomString = UUID.randomUUID().toString();
+        String publicId = randomString + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(content.getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
@@ -98,7 +96,8 @@ public class PostController {
     @PutMapping
     private ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO) throws IOException {
         Optional<PostEntity> postEntity = postRepository.findById(postDTO.getId());
-        String publicId = postDTO.getTitle().replace(" ","") + "_content.txt";
+        String randomString = UUID.randomUUID().toString();
+        String publicId = randomString + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(postDTO.getContent().getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 

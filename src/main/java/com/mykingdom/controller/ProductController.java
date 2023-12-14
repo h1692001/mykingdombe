@@ -19,10 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -258,7 +255,8 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
-        String publicId = name.replace(" ","") + "_content.txt";
+        String randomString = UUID.randomUUID().toString();
+        String publicId = randomString + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
@@ -380,7 +378,8 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
-        String publicId = name.replace(" ","") + "_content.txt";
+        String randomString = UUID.randomUUID().toString();
+        String publicId = randomString + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(des.getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
@@ -530,7 +529,7 @@ public class ProductController {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),StandardCharsets.UTF_8));
             StringBuilder content = new StringBuilder();
             String line;
 
