@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -258,7 +259,7 @@ public class ProductController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
         String publicId = name.replace(" ","") + "_content.txt";
-        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
         String textFileUrl = (String) uploadResult.get("secure_url");
@@ -380,7 +381,7 @@ public class ProductController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
         String publicId = name.replace(" ","") + "_content.txt";
-        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
         String textFileUrl = (String) uploadResult.get("secure_url");
