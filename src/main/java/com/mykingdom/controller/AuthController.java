@@ -62,6 +62,26 @@ public class AuthController {
         userRepository.save(user1);
         return ResponseEntity.ok("Created User");
     }
+    @PostMapping("/registerNV")
+    private ResponseEntity<?> registerNV(@RequestBody RegisterCommand registerCommand){
+        UserEntity user=userRepository.findByEmail(registerCommand.getEmail());
+        if(user!=null){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"Existed email or mobile phone");
+        }
+        UserEntity user1=new UserEntity();
+        BeanUtils.copyProperties(registerCommand,user1);
+        user1.setAvatar("https://res.cloudinary.com/dyvgnrswn/image/upload/v1684721106/mhqiehkoysbdiquyu88a.png");
+        user1.setRole(Role.NV);
+        CartEntity cart=new CartEntity();
+        cart.setUser(user1);
+        FavouriteEntity favourite=new FavouriteEntity();
+        favourite.setOwner(user1);
+        user1.setCart(cart);
+        user1.setFavourite(favourite);
+        user1.setPassword(bCryptPasswordEncoder.encode(registerCommand.getPassword()));
+        userRepository.save(user1);
+        return ResponseEntity.ok("Created User");
+    }
 
     @PostMapping("/registerAdmin")
     private ResponseEntity<?> registerAdmin(@RequestBody RegisterCommand registerCommand){
@@ -99,21 +119,19 @@ public class AuthController {
                 .build());
     }
 
-//    @GetMapping("/getAllUsers")
-//    @CrossOrigin
-//    @PreAuthorize("hasRole('ADMIN')")
-//    private ResponseEntity<?> getAllUsers(){
-//        List<UserEntity> users=userRepository.findAll();
-//        List<GetUserResponse> getUserResponses=new ArrayList<>();
-//        users.forEach(userEntity -> {
-//            GetUserResponse getUserResponse= GetUserResponse.builder()
-//                    .role(userEntity.getRole())
-//                    .fullname(userEntity.getFullname())
-//                    .email(userEntity.getEmail())
-//                    .build();
-//
-//            getUserResponses.add(getUserResponse);
-//        });
-//        return ResponseEntity.ok(getUserResponses);
-//    }
+    @GetMapping("/getAllNV")
+    private ResponseEntity<?> getAllNV(){
+        List<UserEntity> users=userRepository.findAllByRole(Role.NV);
+        List<GetUserResponse> getUserResponses=new ArrayList<>();
+        users.forEach(userEntity -> {
+            GetUserResponse getUserResponse= GetUserResponse.builder()
+                    .role(userEntity.getRole())
+                    .fullname(userEntity.getFullname())
+                    .email(userEntity.getEmail())
+                    .build();
+
+            getUserResponses.add(getUserResponse);
+        });
+        return ResponseEntity.ok(getUserResponses);
+    }
 }

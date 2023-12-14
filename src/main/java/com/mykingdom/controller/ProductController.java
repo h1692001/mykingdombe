@@ -13,7 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +71,8 @@ public class ProductController {
         products.forEach(product -> {
             BrandDTO brandDTO = new BrandDTO();
             BeanUtils.copyProperties(product.getBrand(), brandDTO);
+            String content = getContentFromCloudinary(product.getDes());
+
             ProductDTO productDTO = new ProductDTO();
             BeanUtils.copyProperties(product, productDTO);
             productDTO.setBrand(brandDTO);
@@ -79,6 +85,35 @@ public class ProductController {
                     .id(product.getCategory().getId())
                     .name(product.getCategory().getName())
                     .build());
+
+            productDTO.setDes(content);
+            returnValue.add(productDTO);
+        });
+        return ResponseEntity.ok(returnValue);
+    }
+
+    @GetMapping("search")
+    private ResponseEntity<List<ProductDTO>> search(@RequestParam String keyword) {
+        List<ProductEntity> products = productRepository.findByNameContainingIgnoreCase(keyword);
+        List<ProductDTO> returnValue = new ArrayList<>();
+        products.forEach(product -> {
+            BrandDTO brandDTO = new BrandDTO();
+            BeanUtils.copyProperties(product.getBrand(), brandDTO);
+            String content = getContentFromCloudinary(product.getDes());
+            ProductDTO productDTO = new ProductDTO();
+            BeanUtils.copyProperties(product, productDTO);
+            productDTO.setBrand(brandDTO);
+            List<String> imgs = new ArrayList<>();
+            product.getImages().forEach(img -> {
+                imgs.add(img.getImage());
+            });
+            productDTO.setImages(imgs);
+            productDTO.setCategory(CategoryDTO.builder()
+                    .id(product.getCategory().getId())
+                    .name(product.getCategory().getName())
+                    .build());
+
+            productDTO.setDes(content);
             returnValue.add(productDTO);
         });
         return ResponseEntity.ok(returnValue);
@@ -94,7 +129,12 @@ public class ProductController {
                 BrandDTO brandDTO = new BrandDTO();
                 BeanUtils.copyProperties(product.getBrand(), brandDTO);
                 ProductDTO productDTO = new ProductDTO();
+
+
                 BeanUtils.copyProperties(product, productDTO);
+                String content = getContentFromCloudinary(product.getDes());
+                productDTO.setDes(content);
+
                 productDTO.setBrand(brandDTO);
                 List<String> imgs = new ArrayList<>();
                 product.getImages().forEach(img -> {
@@ -121,6 +161,8 @@ public class ProductController {
             BeanUtils.copyProperties(product.getBrand(), brandDTO);
             ProductDTO productDTO = new ProductDTO();
             BeanUtils.copyProperties(product, productDTO);
+            String content = getContentFromCloudinary(product.getDes());
+            productDTO.setDes(content);
             productDTO.setBrand(brandDTO);
             List<String> imgs = new ArrayList<>();
             product.getImages().forEach(img -> {
@@ -152,6 +194,8 @@ public class ProductController {
                 imgs.add(img.getImage());
             });
             productDTO.setImages(imgs);
+            String content = getContentFromCloudinary(product.getDes());
+            productDTO.setDes(content);
             productDTO.setCategory(CategoryDTO.builder()
                     .id(product.getCategory().getId())
                     .name(product.getCategory().getName())
@@ -168,12 +212,15 @@ public class ProductController {
         BeanUtils.copyProperties(product.get().getBrand(), brandDTO);
         ProductDTO productDTO = new ProductDTO();
         BeanUtils.copyProperties(product.get(), productDTO);
+        String content = getContentFromCloudinary(product.get().getDes());
+        productDTO.setDes(content);
         productDTO.setBrand(brandDTO);
         List<String> imgs = new ArrayList<>();
         product.get().getImages().forEach(img -> {
             imgs.add(img.getImage());
         });
         productDTO.setImages(imgs);
+
         productDTO.setIsHidden(product.get().getIsHidden());
         productDTO.setCategory(CategoryDTO.builder()
                 .id(product.get().getCategory().getId())
@@ -182,6 +229,8 @@ public class ProductController {
         productDTO.setVote(product.get().getVote());
         return ResponseEntity.ok(productDTO);
     }
+
+
 
     @PostMapping
     private ResponseEntity<?> createProduct(@ModelAttribute("name") String name,
@@ -197,7 +246,7 @@ public class ProductController {
                                             @ModelAttribute("brand") Long brand,
                                             @RequestParam("images") List<MultipartFile> images,
                                             @ModelAttribute("category") Long category,
-                                            @ModelAttribute("gender") String gender) {
+                                            @ModelAttribute("gender") String gender) throws IOException {
         ProductEntity check = productRepository.findByName(name);
         if (check != null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Existed product");
@@ -210,12 +259,18 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
+        String publicId = name + "_content.txt";
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
+                ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
+
+        String textFileUrl = (String) uploadResult.get("secure_url");
+
         ProductEntity newProduct = ProductEntity.builder()
                 .name(name)
                 .SKU(SKU)
                 .price(price)
                 .saleOff(saleOff)
-                .des(des)
+                .des(textFileUrl)
                 .amount(amount)
                 .topic(topic)
                 .madeIn(madeIn)
@@ -313,7 +368,7 @@ public class ProductController {
                                             @ModelAttribute("gender") String gender,
                                             @ModelAttribute("isHidden") Boolean isHidden,
                                             @ModelAttribute("id") Long id
-    ){
+    ) throws IOException {
         ProductEntity check = productRepository.findByName(name);
         if (check != null &&check.getId()!=id) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Existed product");
@@ -326,12 +381,18 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
+        String publicId = name + "_content.txt";
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
+                ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
+
+        String textFileUrl = (String) uploadResult.get("secure_url");
+
         ProductEntity newProduct = ProductEntity.builder()
                 .name(name)
                 .SKU(SKU)
                 .price(price)
                 .saleOff(saleOff)
-                .des(des)
+                .des(textFileUrl)
                 .amount(amount)
                 .topic(topic)
                 .madeIn(madeIn)
@@ -462,5 +523,27 @@ public class ProductController {
         if(favouriteProductEntity!=null){
             return ResponseEntity.ok("ok");
         }else return ResponseEntity.ok("no");
+    }
+
+    private String getContentFromCloudinary(String cloudinaryUrl) {
+        try {
+            URL url = new URL(cloudinaryUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder content = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+
+            reader.close();
+            return content.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

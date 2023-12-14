@@ -29,6 +29,12 @@ public enum Role {
             USER_UPDATE,
             USER_READ,
             USER_DELETE
+    )),
+    NV(Set.of(
+            USER_CREATE,
+            USER_UPDATE,
+            USER_READ,
+            USER_DELETE
     ));
 
     private final Set<Permisson> permissions;

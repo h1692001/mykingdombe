@@ -11,7 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +32,15 @@ public class PostController {
 
     @GetMapping
     private ResponseEntity<?> getAllPost() {
-        List<PostEntity> postEntityList = postRepository.findAll();
+        List<PostEntity> postEntityList = postRepository.findAllByOrderByCreateAtDesc();
         return ResponseEntity.ok(postEntityList.stream().map(postEntity -> {
+
+            String content = getContentFromCloudinary(postEntity.getContent());
+
             return PostDTO.builder()
                     .id(postEntity.getId())
                     .title(postEntity.getTitle())
-                    .content(postEntity.getContent())
+                    .content(content)
                     .createAt(postEntity.getCreateAt())
                     .des(postEntity.getDes())
                     .thumb(postEntity.getThumb())
@@ -43,16 +50,24 @@ public class PostController {
 
     @GetMapping("/getById")
     private ResponseEntity<?> getAllPostById(@RequestParam Long id) {
-        PostEntity postEntity = postRepository.findById(id).get();
-        return ResponseEntity.ok(
-                PostDTO.builder()
-                        .id(postEntity.getId())
-                        .title(postEntity.getTitle())
-                        .content(postEntity.getContent())
-                        .createAt(postEntity.getCreateAt())
-                        .des(postEntity.getDes())
-                        .thumb(postEntity.getThumb())
-                        .build());
+        PostEntity postEntity = postRepository.findById(id).orElse(null);
+
+        if (postEntity != null) {
+
+            String content = getContentFromCloudinary(postEntity.getContent());
+
+            return ResponseEntity.ok(
+                    PostDTO.builder()
+                            .id(postEntity.getId())
+                            .title(postEntity.getTitle())
+                            .content(content)
+                            .createAt(postEntity.getCreateAt())
+                            .des(postEntity.getDes())
+                            .thumb(postEntity.getThumb())
+                            .build());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -62,9 +77,16 @@ public class PostController {
                                          @RequestParam("thumb") MultipartFile thumb) throws IOException {
         Map result = cloudinary.uploader().upload(thumb.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) result.get("secure_url");
+
+
+        String publicId = title + "_content.txt";
+        Map uploadResult = cloudinary.uploader().upload(content.getBytes(),
+                ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
+
+        String textFileUrl = (String) uploadResult.get("secure_url");
         PostEntity postEntity = new PostEntity();
         postEntity.setTitle(title);
-        postEntity.setContent(content);
+        postEntity.setContent(textFileUrl);
         postEntity.setCreateAt(new Date());
         postEntity.setDes(des);
         postEntity.setThumb(imageUrl);
@@ -73,12 +95,39 @@ public class PostController {
     }
 
     @PutMapping
-    private ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO) {
+    private ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO) throws IOException {
         Optional<PostEntity> postEntity = postRepository.findById(postDTO.getId());
-        postEntity.get().setContent(postDTO.getContent());
+        String publicId = postDTO.getTitle() + "_content.txt";
+        Map uploadResult = cloudinary.uploader().upload(postDTO.getContent().getBytes(),
+                ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
+
+        String textFileUrl = (String) uploadResult.get("secure_url");
+        postEntity.get().setContent(textFileUrl);
         postEntity.get().setTitle(postDTO.getTitle());
         postEntity.get().setDes(postDTO.getDes());
         postRepository.save(postEntity.get());
         return ResponseEntity.ok("ok");
+    }
+
+    private String getContentFromCloudinary(String cloudinaryUrl) {
+        try {
+            URL url = new URL(cloudinaryUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder content = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+
+            reader.close();
+            return content.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
