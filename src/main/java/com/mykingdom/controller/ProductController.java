@@ -257,7 +257,7 @@ public class ProductController {
         }
         String randomString = UUID.randomUUID().toString();
         String publicId = randomString + "_content.txt";
-        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(StandardCharsets.UTF_8),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
         String textFileUrl = (String) uploadResult.get("secure_url");
