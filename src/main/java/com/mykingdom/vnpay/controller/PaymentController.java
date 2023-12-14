@@ -2,6 +2,7 @@ package com.mykingdom.vnpay.controller;
 
 import com.mykingdom.vnpay.Config;
 import com.mykingdom.vnpay.DTO.PaymentResDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ import java.util.*;
 @RequestMapping("vnpay")
 public class PaymentController {
     @GetMapping("/create-payment")
-    public ResponseEntity<?> createPayment(@RequestParam Long amount) throws UnsupportedEncodingException {
+    public ResponseEntity<?> createPayment(@RequestParam Long amount, HttpServletRequest request) throws UnsupportedEncodingException {
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -26,7 +27,7 @@ public class PaymentController {
         String bankCode = "NCB";
 
         String vnp_TxnRef = Config.getRandomNumber(8);
-        String vnp_IpAddr = "76.76.21.142";
+        String vnp_IpAddr = getClientIp(request);
 
         String vnp_TmnCode = Config.vnp_TmnCode;
 
@@ -87,5 +88,13 @@ public class PaymentController {
     @GetMapping("/payment")
     public ResponseEntity<?> transaction(@RequestParam("vnp_ResponseCode") String responseC){
         return ResponseEntity.ok(responseC);
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        if (xForwardedForHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xForwardedForHeader.split(",")[0].trim();
     }
 }
