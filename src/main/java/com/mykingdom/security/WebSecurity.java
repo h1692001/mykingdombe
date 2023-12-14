@@ -79,8 +79,8 @@ public class WebSecurity {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("*"));
-//        corsConfiguration.setAllowedOrigins(List.of("https://mykingdomfe-g5bm.vercel.app"));
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(List.of("https://mykingdomfe-g5bm.vercel.app"));
+//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
 
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setMaxAge(1800L);
