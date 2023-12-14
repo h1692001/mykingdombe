@@ -79,7 +79,7 @@ public class PostController {
         String imageUrl = (String) result.get("secure_url");
 
 
-        String publicId = title + "_content.txt";
+        String publicId = title.replace(" ","") + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(content.getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
@@ -97,7 +97,7 @@ public class PostController {
     @PutMapping
     private ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO) throws IOException {
         Optional<PostEntity> postEntity = postRepository.findById(postDTO.getId());
-        String publicId = postDTO.getTitle() + "_content.txt";
+        String publicId = postDTO.getTitle().replace(" ","") + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(postDTO.getContent().getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 

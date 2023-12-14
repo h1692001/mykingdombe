@@ -66,13 +66,11 @@ public class ProductController {
     @GetMapping
     private ResponseEntity<List<ProductDTO>> getAllProduct() {
         List<ProductEntity> products = productRepository.findAll();
-
         List<ProductDTO> returnValue = new ArrayList<>();
         products.forEach(product -> {
             BrandDTO brandDTO = new BrandDTO();
             BeanUtils.copyProperties(product.getBrand(), brandDTO);
             String content = getContentFromCloudinary(product.getDes());
-
             ProductDTO productDTO = new ProductDTO();
             BeanUtils.copyProperties(product, productDTO);
             productDTO.setBrand(brandDTO);
@@ -259,7 +257,7 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
-        String publicId = name + "_content.txt";
+        String publicId = name.replace(" ","") + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
@@ -381,7 +379,7 @@ public class ProductController {
         if (categoryEntity.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
-        String publicId = name + "_content.txt";
+        String publicId = name.replace(" ","") + "_content.txt";
         Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
