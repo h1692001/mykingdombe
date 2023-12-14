@@ -259,7 +259,7 @@ public class ProductController {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Can't find category");
         }
         String publicId = name.replace(" ","") + "_content.txt";
-        Map uploadResult = cloudinary.uploader().upload(des.getBytes(StandardCharsets.UTF_8),
+        Map uploadResult = cloudinary.uploader().upload(des.getBytes(),
                 ObjectUtils.asMap("public_id", publicId, "resource_type", "raw"));
 
         String textFileUrl = (String) uploadResult.get("secure_url");
