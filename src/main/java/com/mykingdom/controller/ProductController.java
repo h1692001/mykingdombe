@@ -410,7 +410,7 @@ public class ProductController {
     }
 
     @PostMapping("/addFavourite")
-    private ResponseEntity<?> addFavourite(@RequestBody FavoutireDTO favoutireDTO){
+    public ResponseEntity<?> addFavourite(@RequestBody FavoutireDTO favoutireDTO){
         FavouriteEntity favourite=favouriteRepository.findByUserId(favoutireDTO.getUserId());
         ProductEntity product=productRepository.findById(favoutireDTO.getProductId().get(0)).get();
         FavouriteProductEntity favouriteProductEntity=FavouriteProductEntity.builder()
@@ -425,14 +425,14 @@ public class ProductController {
         return ResponseEntity.ok("ok");
     }
     @PostMapping("/removeFavourite")
-    private ResponseEntity<?> removeFavourite(@RequestBody FavoutireDTO favoutireDTO){
+    public ResponseEntity<?> removeFavourite(@RequestBody FavoutireDTO favoutireDTO){
         FavouriteProductEntity favouriteProductEntity=favouriteProductRepository.findByUserIdAndProductId(favoutireDTO.getUserId(),favoutireDTO.getProductId().get(0));
        favouriteProductRepository.delete(favouriteProductEntity);
         return ResponseEntity.ok("ok");
     }
 
     @GetMapping("/getAllFavourite")
-    private ResponseEntity<?> getAllFavourite(@RequestParam Long userId)
+    public ResponseEntity<?> getAllFavourite(@RequestParam Long userId)
     {
         List<FavouriteProductEntity> favouriteProductEntities=favouriteProductRepository.findAllByUserId(userId);
         List<ProductDTO> productDTOS=new ArrayList<>();
@@ -457,7 +457,7 @@ public class ProductController {
     }
 
     @GetMapping("/checkFavourite")
-    private ResponseEntity<?> checkFavourite(@RequestParam Long userId,@RequestParam Long productId){
+    public ResponseEntity<?> checkFavourite(@RequestParam Long userId,@RequestParam Long productId){
          FavouriteProductEntity favouriteProductEntity=favouriteProductRepository.findByUserIdAndProductId(userId,productId);
         if(favouriteProductEntity!=null){
             return ResponseEntity.ok("ok");

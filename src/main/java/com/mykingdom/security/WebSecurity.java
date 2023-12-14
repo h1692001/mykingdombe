@@ -45,7 +45,7 @@ public class WebSecurity {
                 .requestMatchers(HttpMethod.POST,"/brand").hasRole(Role.ADMIN.name())
                 .requestMatchers(HttpMethod.GET,"/category").permitAll()
                 .requestMatchers(HttpMethod.POST,"/category").hasRole(Role.ADMIN.name())
-                .requestMatchers(HttpMethod.GET,"/product").permitAll()
+                .requestMatchers("/product/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/product/getBestSaleOff").permitAll()
                 .requestMatchers(HttpMethod.GET,"/product/getByCategory").permitAll()
                 .requestMatchers(HttpMethod.GET,"/product/getByBrand").permitAll()
