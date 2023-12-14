@@ -77,4 +77,26 @@ public class BrandController {
         return ResponseEntity.ok("Created");
     }
 
+    @PutMapping
+    private ResponseEntity<?> updateBrand(@RequestParam("logo") MultipartFile logo, @ModelAttribute("name") String name, @ModelAttribute("id") Long id, @ModelAttribute("comeFrom") String comeFrom, @ModelAttribute("category") Long category) throws IOException {
+        Map result = cloudinary.uploader().upload(logo.getBytes(), ObjectUtils.emptyMap());
+        BrandEntity check = brandRepository.findById(id).get();
+        String imageUrl = (String) result.get("secure_url");
+        Optional<CategoryEntity> categoryE=categoryRepository.findById(category);
+        if(categoryE.isEmpty()){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"Can't fint Category");
+        }
+        BrandEntity brandEntity = BrandEntity.builder()
+                .id(check.getId())
+                .name(name)
+                .comeFrom(comeFrom)
+                .logo(imageUrl)
+                .category(categoryE.get())
+                .build();
+        brandRepository.save(brandEntity);
+        categoryE.get().getBrand().add(brandEntity);
+        categoryRepository.save(categoryE.get());
+        return ResponseEntity.ok("Created");
+    }
+
 }

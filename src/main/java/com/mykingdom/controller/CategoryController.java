@@ -66,4 +66,17 @@ public class CategoryController
         categoryRepository.save(newCate);
         return ResponseEntity.ok("Created");
     }
+    @PutMapping
+    private ResponseEntity<?> updateCategory(@RequestParam("logo") MultipartFile logo, @ModelAttribute("name") String name, @ModelAttribute("id") Long id) throws IOException {
+        CategoryEntity check =categoryRepository.findById(id).get();
+        Map result = cloudinary.uploader().upload(logo.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = (String) result.get("secure_url");
+        CategoryEntity newCate= CategoryEntity.builder()
+                .id(check.getId())
+                .name(name)
+                .image(imageUrl)
+                .build();
+        categoryRepository.save(newCate);
+        return ResponseEntity.ok("Created");
+    }
 }

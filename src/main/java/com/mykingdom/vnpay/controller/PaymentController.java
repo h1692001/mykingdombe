@@ -41,7 +41,7 @@ public class PaymentController {
         vnp_Params.put("vnp_OrderType", orderType);
 
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl","http://localhost:3000/paymentSuccess");
+        vnp_Params.put("vnp_ReturnUrl","https://mykingdomfe.vercel.app/paymentSuccess");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
