@@ -34,7 +34,7 @@ public class StatisticController {
         List<BillEntity> billEntityList=billRepository.findBillsByDateRange(startDate,endDate);
         return ResponseEntity.ok(StatisticDTO.builder()
                         .donHuy(billEntityList.stream().filter(billEntity -> {
-                            return billEntity.getStatus().equals("CANCEL");
+                            return billEntity.getStatus().equals("CANCELED");
                         }).collect(Collectors.toList()).size())
                         .donThanhcong(billEntityList.stream().filter(billEntity -> {
                             return billEntity.getStatus().equals("COMPLETED");
