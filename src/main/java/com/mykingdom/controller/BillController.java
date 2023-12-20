@@ -66,6 +66,7 @@ public class BillController {
                                 .productDTO(productDTO)
                                 .id(billItemEntity.getId())
                                 .isVoted(billItemEntity.getIsVoted())
+                                .price(billItemEntity.getPrice())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();
@@ -89,10 +90,10 @@ public class BillController {
                 .billItemDTOS(billEntity.getBillItems().stream().map(billItemEntity -> {
                     ProductDTO productDTO = new ProductDTO();
                     BeanUtils.copyProperties(billItemEntity.getProduct(), productDTO);
-
                     return BillItemDTO.builder()
                             .amount(billItemEntity.getAmount())
                             .productDTO(productDTO)
+                            .price(billItemEntity.getPrice())
                             .build();
                 }).collect(Collectors.toList()))
                 .build();
@@ -124,6 +125,7 @@ public class BillController {
                     .bill(bill)
                     .isVoted(0)
                     .amount(billItemDTO.getAmount())
+                    .price((product.get().getPrice()-product.get().getSaleOff()*product.get().getPrice()/100)* billItemDTO.getAmount())
                     .build();
             productRepository.save(product.get());
             billItemEntities.add(billItemEntity);

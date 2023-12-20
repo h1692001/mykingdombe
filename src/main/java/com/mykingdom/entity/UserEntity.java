@@ -78,4 +78,7 @@ public class UserEntity implements UserDetails {
  
     @OneToMany(mappedBy = "owner")
     private List<BillEntity> bills;
+
+    @OneToMany(mappedBy = "user")
+    private List<FeedbackEntity> feedback;
 }

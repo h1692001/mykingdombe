@@ -53,6 +53,9 @@ public class ProductController {
     @Autowired
     private FavouriteProductRepository favouriteProductRepository;
 
+    @Autowired
+    private FeedbackRepository feedbackRepository;
+
 
     @Autowired
     private Cloudinary cloudinary;
@@ -204,6 +207,7 @@ public class ProductController {
     @GetMapping("/getById")
     private ResponseEntity<ProductDTO> getAllById(@RequestParam Long id) {
         Optional<ProductEntity> product = productRepository.findById(id);
+        List<FeedbackEntity> feedbackEntities=feedbackRepository.findAllByProduct(product.get());
         BrandDTO brandDTO = new BrandDTO();
         BeanUtils.copyProperties(product.get().getBrand(), brandDTO);
         ProductDTO productDTO = new ProductDTO();
@@ -223,6 +227,18 @@ public class ProductController {
                 .name(product.get().getCategory().getName())
                 .build());
         productDTO.setVote(product.get().getVote());
+        productDTO.setVoteCount(feedbackEntities.size());
+        productDTO.setFeedbacks(feedbackEntities.stream().map(feedbackEntity -> {
+            return FeebackDTO.builder()
+                    .vote(feedbackEntity.getPoint())
+                    .content(feedbackEntity.getContent())
+                    .getUserResponse(GetUserResponse.builder()
+                            .avatar(feedbackEntity.getUser().getAvatar())
+                            .fullname(feedbackEntity.getUser().getFullname())
+                            .build())
+                    .createdAt(feedbackEntity.getCreatedAt())
+                    .build();
+        }).collect(Collectors.toList()));
         return ResponseEntity.ok(productDTO);
     }
 
@@ -328,6 +344,7 @@ public class ProductController {
                                 .productDTO(productDTO)
                                 .id(billItemEntity.getId())
                                 .isVoted(billItemEntity.getIsVoted())
+                                .price(billItemEntity.getPrice())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();
@@ -335,8 +352,6 @@ public class ProductController {
         });
         return ResponseEntity.ok(returnValue);
     }
-
-
 
     @PostMapping("/voteProduct")
     private ResponseEntity<?> voteProduct(@RequestBody BillItemDTO billItemDTO){
@@ -346,8 +361,17 @@ public class ProductController {
         billItemRepository.save(billItemEntity);
         product.setVote(product.getVote()+billItemDTO.getVote());
         productRepository.save(product);
+        FeedbackEntity feedbackEntity=FeedbackEntity.builder()
+                .content(billItemDTO.getContentVote())
+                .point(billItemDTO.getVote())
+                .user(billItemEntity.getBill().getOwner())
+                .product(product)
+                .createdAt(new Date())
+                .build();
+        feedbackRepository.save(feedbackEntity);
         return ResponseEntity.ok("ok");
     }
+
     @PutMapping("/updateProduct")
     private ResponseEntity<?> updateProduct(@ModelAttribute("name") String name,
                                             @ModelAttribute("SKU") String SKU,
@@ -460,6 +484,7 @@ public class ProductController {
                                 .productDTO(productDTO)
                                 .id(billItemEntity.getId())
                                 .isVoted(billItemEntity.getIsVoted())
+                                .price(billItemEntity.getPrice())
                                 .build();
                     }).collect(Collectors.toList()))
                     .build();

@@ -55,6 +55,9 @@ public class ProductEntity {
     @OneToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST},mappedBy = "product")
     private List<ProductImageEntity>  images;
 
+    @OneToMany(mappedBy = "product")
+    private List<FeedbackEntity> feedback;
+
     private Date createdAt;
 
     private String gender;

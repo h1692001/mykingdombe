@@ -3,28 +3,28 @@ package com.mykingdom.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class BillItemEntity {
+@NoArgsConstructor
+public class FeedbackEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    private int amount;
-    private int isVoted;
-    private int price;
+    private int point;
+    private String content;
+    private Date createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
     private ProductEntity product;
 
     @ManyToOne
-    @JoinColumn(name = "bill_id")
-    private BillEntity bill;
+    private UserEntity user;
 
 }

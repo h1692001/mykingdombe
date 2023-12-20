@@ -34,4 +34,6 @@ public class ProductDTO {
 
     private Boolean isHidden;
     private int vote;
+    private int voteCount;
+    private List<FeebackDTO> feedbacks;
 }
