@@ -52,7 +52,7 @@ public class BrandController {
         brands.forEach(brandEntity -> {
             BrandDTO brandDTO = new BrandDTO();
             BeanUtils.copyProperties(brandEntity, brandDTO);
-            brandDTO.setHidden(brandEntity.getIsHidden() );
+            brandDTO.setHidden(org.springframework.util.ObjectUtils.isEmpty(brandEntity.getIsHidden())?false:brandEntity.getIsHidden() );
             brandDTOS.add(brandDTO);
         });
         return ResponseEntity.ok(brandDTOS);
