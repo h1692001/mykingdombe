@@ -48,7 +48,7 @@ public class CategoryController
                 brandDTOS.add(brandDTO);
             });
             categoryDTO.setBrands(brandDTOS);
-            categoryDTO.setHidden(categoryEntity.getIsHidden());
+            categoryDTO.setHidden(org.springframework.util.ObjectUtils.isEmpty(categoryEntity.getIsHidden())?false:categoryEntity.getIsHidden());
             returnValue.add(categoryDTO);
         });
         return ResponseEntity.ok(returnValue);
