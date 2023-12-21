@@ -132,4 +132,22 @@ public class SaleController {
                     .build();
         }).collect(Collectors.toList()));
     }
+    @DeleteMapping
+    private ResponseEntity<?> deleteSale(  @RequestParam Long saleId){
+        SaleEntity saleEntity=saleRepository.findById(saleId).orElseThrow(()->{
+            throw new ApiException(HttpStatus.BAD_REQUEST,"Can't find sale!");
+        });
+        saleEntity.getCategories().forEach(categoryEntity -> {
+            categoryEntity.getProducts().forEach(
+                    productEntity -> {
+                        productEntity.setSaleOff(0);
+                    }
+            );
+            productRepository.saveAll(categoryEntity.getProducts());
+            categoryEntity.setSale(null);
+            categoryRepository.save(categoryEntity);
+        });
+        saleRepository.delete(saleEntity);
+        return ResponseEntity.ok("");
+    }
 }

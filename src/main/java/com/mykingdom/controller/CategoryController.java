@@ -8,6 +8,7 @@ import com.mykingdom.dtos.CreateCategoryCommand;
 import com.mykingdom.entity.CategoryEntity;
 import com.mykingdom.exception.ApiException;
 import com.mykingdom.repository.CategoryRepository;
+import com.mykingdom.repository.ProductRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,8 @@ public class CategoryController
 
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private ProductRepository productRepository;
 
     @GetMapping
     private ResponseEntity<?> getAllCategory(){
@@ -45,6 +48,7 @@ public class CategoryController
                 brandDTOS.add(brandDTO);
             });
             categoryDTO.setBrands(brandDTOS);
+            categoryDTO.setHidden(categoryEntity.getIsHidden());
             returnValue.add(categoryDTO);
         });
         return ResponseEntity.ok(returnValue);
@@ -78,5 +82,27 @@ public class CategoryController
                 .build();
         categoryRepository.save(newCate);
         return ResponseEntity.ok("Created");
+    }
+    @GetMapping("/disable")
+    private ResponseEntity<?> disable(@RequestParam Long categoryId){
+        CategoryEntity category=categoryRepository.findById(categoryId).orElseThrow(()-> new ApiException(HttpStatus.BAD_REQUEST, "CantFind category"));
+        category.setIsHidden(true);
+        category.getProducts().forEach(productEntity -> {
+            productEntity.setIsHidden(true);
+        });
+        productRepository.saveAll(category.getProducts());
+        categoryRepository.save(category);
+        return ResponseEntity.ok("");
+    }
+    @GetMapping("/enable")
+    private ResponseEntity<?> enable(@RequestParam Long categoryId){
+        CategoryEntity category=categoryRepository.findById(categoryId).orElseThrow(()-> new ApiException(HttpStatus.BAD_REQUEST, "CantFind category"));
+        category.setIsHidden(false);
+        category.getProducts().forEach(productEntity -> {
+            productEntity.setIsHidden(false);
+        });
+        productRepository.saveAll(category.getProducts());
+        categoryRepository.save(category);
+        return ResponseEntity.ok("");
     }
 }

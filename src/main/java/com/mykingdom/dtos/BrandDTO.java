@@ -14,4 +14,5 @@ public class BrandDTO {
     private String name;
     private String comeFrom;
     private String logo;
+    private boolean isHidden;
 }

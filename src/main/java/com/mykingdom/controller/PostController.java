@@ -4,9 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.mykingdom.dtos.PostDTO;
 import com.mykingdom.entity.PostEntity;
+import com.mykingdom.exception.ApiException;
 import com.mykingdom.repository.PostRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,6 +109,13 @@ public class PostController {
         postEntity.get().setDes(postDTO.getDes());
         postRepository.save(postEntity.get());
         return ResponseEntity.ok("ok");
+    }
+
+    @DeleteMapping
+    private ResponseEntity<?> deletePost(@RequestParam Long postId){
+
+        postRepository.deleteById(postId);
+        return ResponseEntity.ok("");
     }
 
     private String getContentFromCloudinary(String cloudinaryUrl) {

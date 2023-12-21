@@ -16,4 +16,6 @@ public class CategoryDTO {
     private Long id;
     private String image;
     private List<BrandDTO> brands;
+    private boolean isHidden;
+
 }

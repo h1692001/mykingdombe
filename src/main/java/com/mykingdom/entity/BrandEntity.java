@@ -21,7 +21,7 @@ public class BrandEntity {
     private String comeFrom;
     private String logo;
 
-    private Boolean isHidden;
+    private Boolean isHidden ;
 
     @OneToMany(mappedBy = "brand")
     private List<ProductEntity> products;

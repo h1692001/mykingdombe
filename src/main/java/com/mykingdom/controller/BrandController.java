@@ -10,6 +10,7 @@ import com.mykingdom.entity.UserEntity;
 import com.mykingdom.exception.ApiException;
 import com.mykingdom.repository.BrandRepository;
 import com.mykingdom.repository.CategoryRepository;
+import com.mykingdom.repository.ProductRepository;
 import com.mykingdom.repository.UserRepository;
 import com.mykingdom.security.Role;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +39,9 @@ public class BrandController {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     Cloudinary cloudinary;
 
 
@@ -48,6 +52,7 @@ public class BrandController {
         brands.forEach(brandEntity -> {
             BrandDTO brandDTO = new BrandDTO();
             BeanUtils.copyProperties(brandEntity, brandDTO);
+            brandDTO.setHidden(brandEntity.getIsHidden() );
             brandDTOS.add(brandDTO);
         });
         return ResponseEntity.ok(brandDTOS);
@@ -97,6 +102,29 @@ public class BrandController {
         categoryE.get().getBrand().add(brandEntity);
         categoryRepository.save(categoryE.get());
         return ResponseEntity.ok("Created");
+    }
+
+    @GetMapping("/disable")
+    private ResponseEntity<?> disable(@RequestParam Long brandId){
+        BrandEntity category=brandRepository.findById(brandId).orElseThrow(()-> new ApiException(HttpStatus.BAD_REQUEST, "CantFind brand"));
+        category.setIsHidden(true);
+        category.getProducts().forEach(productEntity -> {
+            productEntity.setIsHidden(true);
+        });
+        productRepository.saveAll(category.getProducts());
+        brandRepository.save(category);
+        return ResponseEntity.ok("");
+    }
+    @GetMapping("/enable")
+    private ResponseEntity<?> enable(@RequestParam Long brandId){
+        BrandEntity category=brandRepository.findById(brandId).orElseThrow(()-> new ApiException(HttpStatus.BAD_REQUEST, "CantFind brand"));
+        category.setIsHidden(false);
+        category.getProducts().forEach(productEntity -> {
+            productEntity.setIsHidden(false);
+        });
+        productRepository.saveAll(category.getProducts());
+        brandRepository.save(category);
+        return ResponseEntity.ok("");
     }
 
 }
